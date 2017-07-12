@@ -1,2 +1,4 @@
-# utrakv2
-Second Revision of uTrak, a pico-balloon tracker
+# utrak RF
+
+A pico-balloon tracker implementing WSPR transmission on ham radio frequencies.
+
