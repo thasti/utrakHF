@@ -1,6 +1,10 @@
 #ifndef SI5351_H_
 #define SI5351_H_
 
+#define SI5351_INIT_REGISTERS   233
+#define SI5351_UPDATE_REGISTERS 10
+#define SI5351_I2C_ADDR         0x60
+
 /*
  * si5351_init()
  *
