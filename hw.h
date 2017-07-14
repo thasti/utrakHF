@@ -113,4 +113,13 @@ void hw_rf_config(hw_module_state state);
  */
 void hw_enter_low_power_mode(void);
 
+/*
+ * hw_reset_wspr_baud_timer()
+ *
+ * Aligns the WSPR baud rate timer to the call time. This will cause an
+ * interrupt to occur right after this function is called, setting the
+ * corresponding ISR flag.
+ */
+void hw_reset_wspr_baud_timer(void);
+
 #endif

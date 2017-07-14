@@ -103,7 +103,7 @@ void si5351_init(void) {
     }
 }
 
-void si5351_set_channel(uint16_t channel) {
+void si5351_set_channel(uint8_t channel) {
     const uint8_t (*si5351_reg_update)[2];
     uint8_t reg_write[2];
     int i;

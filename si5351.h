@@ -16,7 +16,7 @@ void si5351_init(void);
  *
  * Programs the Si5351 frequency to one of the specified channels.
  */
-void si5351_set_channel(uint16_t channel);
+void si5351_set_channel(uint8_t channel);
 
 #endif
 

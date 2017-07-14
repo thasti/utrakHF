@@ -14,12 +14,12 @@ uint16_t adc_get_voltage(adc_voltage_channel channel) {
 	ADC10CTL1 = ADC10SHP + ADC10SSEL0 + ADC10SSEL1;
 	ADC10CTL2 = ADC10RES;
     switch (channel) {
-        case CHANNEL_VSOL:
-	        ADC10MCTL0 = ADC_CHAN_VSOL;
-            break;
-        case CHANNEL_VBAT:
-	        ADC10MCTL0 = ADC_CHAN_VBAT;
-            break;
+    case CHANNEL_VSOL:
+	    ADC10MCTL0 = ADC_CHAN_VSOL;
+        break;
+    case CHANNEL_VBAT:
+	    ADC10MCTL0 = ADC_CHAN_VBAT;
+        break;
     }
 	ADC10IE = ADC10IE0;
 	__delay_cycles(20000);
@@ -32,6 +32,15 @@ uint16_t adc_get_voltage(adc_voltage_channel channel) {
 		voltage += adc_result * 32 / 10;
 	}
 	voltage /= 10;
+
+    /* post process readings */
+    switch (channel) {
+    case CHANNEL_VSOL:
+        voltage = voltage * 2;
+        break;
+    default:
+        break;
+    }
 	
     /* disable ADC */
 	ADC10IE &= ~ADC10IE0;

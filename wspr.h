@@ -1,6 +1,10 @@
 #ifndef WSPR_H_
 #define WSPR_H_
 
+#define WSPR_PAYLOAD_BYTES      4
+#define WSPR_PAYLOAD_BITS       28
+#define WSPR_NUM_SYMBOLS        162
+
 /*
  * wspr_encode_channel_symbols
  *

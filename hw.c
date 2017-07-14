@@ -182,6 +182,11 @@ void hw_enter_low_power_mode(void) {
     __bis_SR_register(LPM3_bits);
 }
 
+void hw_reset_wspr_baud_timer(void) {
+    TB0CCR0 = 0;
+    TB0R = 65535;
+}
+
 #pragma vector=UNMI_VECTOR
 __interrupt void UNMI_ISR(void)
 {
