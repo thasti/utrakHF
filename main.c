@@ -9,6 +9,7 @@
 #include "wspr.h"
 
 struct state;
+struct wspr_message;
 typedef void state_fn(struct state *);
 
 struct state {
@@ -20,8 +21,7 @@ state_fn charge, get_gps_fix, transmit;
 
 volatile uint16_t isr_flags = 0;
 struct gps_fix fix;
-uint8_t wspr_payload_buffer[WSPR_PAYLOAD_BYTES];
-uint8_t wspr_tx_symbol_buffer[WSPR_NUM_SYMBOLS];
+struct wspr_message wspr_msg;
 
 void charge(struct state *state) {
     uint16_t vbat, vsol;
@@ -63,10 +63,11 @@ void get_gps_fix(struct state *state) {
         if ((fix.min % 2) == 0 && fix.sec >= 0 && fix.sec <= 1) {
             /* start WSPR transmission */
             if (((fix.min / 2) % 2) == 0) {
-                tlm_encode_wspr_primary(fix.lat, fix.lon, fix.alt, wspr_payload_buffer);
+                tlm_encode_wspr_primary(fix.lat, fix.lon, fix.alt, &wspr_msg);
             } else {
-                tlm_encode_wspr_secondary(fix.lat, fix.lon, fix.alt, temp, vsol, vbat, wspr_payload_buffer);
+                tlm_encode_wspr_secondary(fix.lat, fix.lon, fix.alt, temp, vsol, vbat, &wspr_msg);
             }
+            wspr_encode(&wspr_msg);
             state->wspr_symbol_count = 0;
             state->next = transmit;
             hw_gps_config(MODULE_DISABLE);
@@ -84,7 +85,7 @@ void transmit(struct state *state) {
     
     hw_watchdog_feed();
     if (state->wspr_symbol_count < WSPR_NUM_SYMBOLS) {
-        si5351_set_channel(wspr_tx_symbol_buffer[state->wspr_symbol_count++]);
+        si5351_set_channel(wspr_msg.tx_symbol_buffer[state->wspr_symbol_count++]);
     } else {
         state->next = charge;
         hw_rf_config(MODULE_DISABLE);
