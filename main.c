@@ -31,7 +31,7 @@ void charge(struct state *state) {
     hw_enter_low_power_mode();
     isr_flags &= ~ISR_FLAG_WAKE_CPU;
     vbat = adc_get_voltage(CHANNEL_VBAT);
-    vsol = adc_get_voltage(CHANNEL_VBAT);
+    vsol = adc_get_voltage(CHANNEL_VSOL);
     if (vbat > CHARGE_MIN_VSOL && vsol > CHARGE_MIN_VBAT) {
         /* battery charged, ready to proceed */
         state->next = get_gps_fix; 
@@ -51,7 +51,7 @@ void get_gps_fix(struct state *state) {
 
     hw_watchdog_feed();
     vbat = adc_get_voltage(CHANNEL_VBAT);
-    vsol = adc_get_voltage(CHANNEL_VBAT);
+    vsol = adc_get_voltage(CHANNEL_VSOL);
     temp = adc_get_temperature();
     gps_get_fix(&fix);
     if (vbat < FIX_MIN_VBAT || vsol < FIX_MIN_VSOL) {
@@ -94,7 +94,7 @@ void transmit(struct state *state) {
     }
     
     vbat = adc_get_voltage(CHANNEL_VBAT);
-    vsol = adc_get_voltage(CHANNEL_VBAT);
+    vsol = adc_get_voltage(CHANNEL_VSOL);
     if (vbat < TX_MIN_VBAT || vsol < TX_MIN_VSOL) {
         state->next = charge;
         hw_rf_config(MODULE_DISABLE);
