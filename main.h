@@ -7,5 +7,9 @@
 
 #define CHARGE_MIN_VSOL         200
 #define CHARGE_MIN_VBAT         4500
+#define FIX_MIN_VSOL            200
+#define FIX_MIN_VBAT            4000
+#define TX_MIN_VSOL             200
+#define TX_MIN_VBAT             3500
 
 #endif

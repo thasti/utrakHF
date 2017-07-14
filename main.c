@@ -54,7 +54,7 @@ void get_gps_fix(struct state *state) {
     vsol = adc_get_voltage(CHANNEL_VBAT);
     temp = adc_get_temperature();
     gps_get_fix(&fix);
-    if (vbat < CHARGE_MIN_VBAT || vsol < CHARGE_MIN_VSOL) {
+    if (vbat < FIX_MIN_VBAT || vsol < FIX_MIN_VSOL) {
         state->next = charge;
         hw_gps_config(MODULE_DISABLE);
     }
@@ -80,6 +80,8 @@ void get_gps_fix(struct state *state) {
 }
 
 void transmit(struct state *state) {
+    uint16_t vbat, vsol;
+
     while (!(isr_flags & ISR_FLAG_WSPR_BAUD));
     isr_flags &= ~ISR_FLAG_WSPR_BAUD;
     
@@ -87,6 +89,13 @@ void transmit(struct state *state) {
     if (state->wspr_symbol_count < WSPR_NUM_SYMBOLS) {
         si5351_set_channel(wspr_msg.tx_symbol_buffer[state->wspr_symbol_count++]);
     } else {
+        state->next = charge;
+        hw_rf_config(MODULE_DISABLE);
+    }
+    
+    vbat = adc_get_voltage(CHANNEL_VBAT);
+    vsol = adc_get_voltage(CHANNEL_VBAT);
+    if (vbat < TX_MIN_VBAT || vsol < TX_MIN_VSOL) {
         state->next = charge;
         hw_rf_config(MODULE_DISABLE);
     }
