@@ -5,6 +5,10 @@ volatile uint8_t *tx_data;
 
 void i2c_write(uint8_t slave_addr, uint8_t *data, uint8_t len) {
     tx_data = data;
+    
+    /* wait for any remaining transfers to finished */
+    while (UCB0STATW & UCBBUSY);
+    
     /* configure I2C peripheral for transfer */
     UCB0CTLW0 |= UCSWRST;
     UCB0TBCNT |= len;
@@ -13,8 +17,12 @@ void i2c_write(uint8_t slave_addr, uint8_t *data, uint8_t len) {
     UCB0CTL1  &= ~UCSWRST;
 
     /* transmit start condition and sleep CPU while transfer occurs */
-    UCB0CTL1 |= UCTXSTT;
+    UCB0CTL1 |= UCTR + UCTXSTT;
     __bis_SR_register(CPUOFF+GIE);
+
+    /* disable interrupts again and reset I2C peripheral */
+    UCB0IE    &= ~(UCTXIE0+UCSTPIE+UCNACKIE+UCSTPIE); 	
+    UCB0CTLW0 |= UCSWRST;
 }
 
 #pragma vector = USCI_B0_VECTOR 
@@ -41,8 +49,8 @@ __interrupt void USCIB0_ISR(void)
 
 __interrupt void uscib0_nak_handler(void)
 {
-    /* generate a new start condition */
-    UCB0CTL1 |= UCTXSTT;
+    /* return to program flow */
+    __bic_SR_register_on_exit(CPUOFF);
 }
 
 __interrupt void uscib0_stp_handler(void)
