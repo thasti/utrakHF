@@ -1,6 +1,7 @@
 #include <msp430.h>
 #include <inttypes.h>
 #include "adc.h"
+#include "hw.h"
 
 volatile uint16_t adc_result;
 
@@ -8,11 +9,18 @@ uint16_t adc_get_voltage(adc_voltage_channel channel) {
 	uint16_t i;
 	uint16_t voltage;
 	
-    /* configure ADC */
-    // TODO: review ADC settings
+    /* configure ADC
+     *   * conversion clock ACLK = FDCO/32
+     *   * FDCO/32 = 5.37 MHz/32 -> 6 us period
+     *   * worst case source impedance = 1 MOhm
+     *   * input capacitance ~10 pF
+     *   * ~80 us required sampling time
+     *   * using 16 cycles for S&H is more than enough
+     *   * max sample rate is ~13 kHz, so low speed mode can be used
+     */
     ADC10CTL0 = ADC10SHT_2 + ADC10ON;
-	ADC10CTL1 = ADC10SHP + ADC10SSEL0 + ADC10SSEL1;
-	ADC10CTL2 = ADC10RES;
+	ADC10CTL1 = ADC10SHP + ADC10SSEL0;
+	ADC10CTL2 = ADC10RES + ADC10SR;
     switch (channel) {
     case CHANNEL_VSOL:
 	    ADC10MCTL0 = ADC_CHAN_VSOL;
@@ -22,7 +30,6 @@ uint16_t adc_get_voltage(adc_voltage_channel channel) {
         break;
     }
 	ADC10IE = ADC10IE0;
-	__delay_cycles(20000);
 
     /* take ADC reading */
 	voltage = 0;
@@ -44,6 +51,7 @@ uint16_t adc_get_voltage(adc_voltage_channel channel) {
 	
     /* disable ADC */
 	ADC10IE &= ~ADC10IE0;
+    ADC10CTL0 &= ~ADC10ENC;
 	ADC10CTL0 &= ~ADC10ON;
 
 	return voltage;
@@ -52,18 +60,23 @@ uint16_t adc_get_voltage(adc_voltage_channel channel) {
 int16_t adc_get_temperature(void) {
 	long temperature;
 
-	/* configure ADC */
-    // TODO review ADC settings
-	ADC10CTL0 = ADC10SHT_15 + ADC10ON;
-	ADC10CTL1 = ADC10SHP + ADC10SSEL0 + ADC10SSEL1;	
-	ADC10CTL2 = ADC10RES;
+	/* configure ADC
+     *   * 30 microsecond conversion time minimum
+     *   * conversion clock ACLK = FDCO/32
+     *   * FDCO/32 = 5.37 MHz/32 -> 6 us period
+     *   * using 8 cycles for S&H is more than enough
+     *   * max sample rate is ~13 kHz, so low speed mode can be used
+     */
+	ADC10CTL0 = ADC10SHT_1 + ADC10ON;
+	ADC10CTL1 = ADC10SHP + ADC10SSEL0;	
+	ADC10CTL2 = ADC10RES + ADC10SR;
 	ADC10MCTL0 = ADC10SREF_1 + ADC10INCH_10;
 	ADC10IE |= ADC10IE0;
 
 	/* Configure internal reference */
 	while(REFCTL0 & REFGENBUSY);
-	REFCTL0 |= REFVSEL_0+REFON;
-	__delay_cycles(1000);
+	REFCTL0 |= REFVSEL_0 + REFON;
+    hw_delay_us(50);
 
 	/* take ADC reading */
 	ADC10CTL0 |= ADC10ENC + ADC10SC;
@@ -74,6 +87,7 @@ int16_t adc_get_temperature(void) {
 	/* disable ADC */
 	REFCTL0 &= ~REFON;
 	ADC10IE &= ~ADC10IE0;
+    ADC10CTL0 &= ~ADC10ENC;
 	ADC10CTL0 &= ~ADC10ON;
 
 	return temperature;

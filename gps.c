@@ -1,6 +1,7 @@
 #include <msp430.h>
 #include <inttypes.h>
 #include "fix.h"
+#include "hw.h"
 #include "uart.h"
 
 void gps_startup_delay(void);
@@ -319,13 +320,6 @@ uint8_t gps_save_settings(void) {
  */
 void gps_startup_delay(void) {
 	/* wait for the GPS to startup */
-	__delay_cycles(60000);
-	__delay_cycles(60000);
-	__delay_cycles(60000);
-	__delay_cycles(60000);
-	__delay_cycles(60000);
-	__delay_cycles(60000);
-	__delay_cycles(60000);
-	__delay_cycles(60000);
+    hw_delay_ms(1000);
 }
 

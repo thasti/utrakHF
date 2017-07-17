@@ -187,6 +187,19 @@ void hw_reset_wspr_baud_timer(void) {
     TB0R = 65535;
 }
 
+/* CPU is running at MCLK = FDCO/8
+ * MCLK = 5.37 MHz / 4 -> 0,74 us period
+ * approximately waiting as many cycles as microseconds should be good enough
+*/
+
+void hw_delay_ms(uint16_t ms) {
+    int i;
+    
+    for (i = 0; i < ms; i++) {
+        hw_delay_us(1000);
+    }
+}
+
 #pragma vector=UNMI_VECTOR
 __interrupt void UNMI_ISR(void)
 {
@@ -194,7 +207,7 @@ __interrupt void UNMI_ISR(void)
 	do {
 		CSCTL5 &= ~XT1OFFG;
 		SFRIFG1 &= ~OFIFG;
-		__delay_cycles(25000);
+        hw_delay_us(100);
 	} while (SFRIFG1 & OFIFG);
 }
 

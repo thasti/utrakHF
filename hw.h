@@ -122,4 +122,14 @@ void hw_enter_low_power_mode(void);
  */
 void hw_reset_wspr_baud_timer(void);
 
+#define hw_delay_us(x) __delay_cycles(x)
+
+/*
+ * hw_delay_ms()
+ *
+ * Coarse delay routine.
+ */
+void hw_delay_ms(uint16_t ms);
+
+
 #endif
