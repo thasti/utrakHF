@@ -14,9 +14,9 @@
  * tlm_encode_wspr_primary()
  *
  * Encodes a "regular" WSPR packet with regular callsign and four-digit 
- * locator. Reuses the power field for coarse altitude information.
+ * locator. Reuses the power field for temperature information.
  */
-void tlm_encode_wspr_primary(int32_t lat, int32_t lon, uint16_t alt, struct wspr_message *message);
+void tlm_encode_wspr_primary(int32_t lat, int32_t lon, int16_t temp, struct wspr_message *message);
 
 /*
  * tlm_encode_wspr_secondary()
@@ -26,6 +26,6 @@ void tlm_encode_wspr_primary(int32_t lat, int32_t lon, uint16_t alt, struct wspr
  * Four digit locator is correctly encoded, other callsign bits and power
  * field are reused for additional telemetry.
  */
-void tlm_encode_wspr_secondary(int32_t lat, int32_t lon, uint16_t alt, uint16_t temp, uint16_t vsol, uint16_t vbat, struct wspr_message *message);
+void tlm_encode_wspr_secondary(int32_t lat, int32_t lon, uint16_t alt, uint16_t vsol, uint16_t vbat, struct wspr_message *message);
 
 #endif

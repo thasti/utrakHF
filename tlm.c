@@ -7,17 +7,19 @@ const uint8_t tlm_wspr_power_table[19] = {0, 3, 7, 10, 13, 17,
                                          40, 43, 47, 50, 53, 57, 
                                          60};
 
+uint8_t tlm_encode_wspr_alt(uint16_t alt);
 uint8_t tlm_encode_wspr_vsol(uint16_t voltage);
 uint8_t tlm_encode_wspr_vbat(uint16_t voltage);
 uint8_t tlm_encode_wspr_temp(int16_t temperature);
 
 void tlm_encode_wspr_primary(int32_t lat,
         int32_t lon,
-        uint16_t alt,
+        int16_t temp,
         struct wspr_message *message) {
     int i;
     uint32_t ulat;
     uint32_t ulon;
+    uint8_t temp_encoded;
     
     /* set callsign */
     for (i = 0; i < WSPR_CALLSIGN_BYTES; i++) {
@@ -33,27 +35,21 @@ void tlm_encode_wspr_primary(int32_t lat,
     message->locator[2] = '0' + (ulon % 200000000) / 20000000;
     message->locator[3] = '0' + (ulat % 100000000) / 10000000;
 
-    /* set power level / altitude */
-    // TODO review altitude calculation
-    //  negative dBm values are possible, maybe more resolution is available.
-    alt = alt / 1000;
-    if (alt > sizeof(tlm_wspr_power_table)-1) {
-        alt = sizeof(tlm_wspr_power_table)-1;
-    }
-    message->power = tlm_wspr_power_table[alt / 1000];
+    /* set power level / temperature */
+    temp_encoded = tlm_encode_wspr_temp(temp);
+    message->power = tlm_wspr_power_table[temp_encoded];
 }
 
 void tlm_encode_wspr_secondary(int32_t lat,
         int32_t lon,
         uint16_t alt, 
-        uint16_t temp,
         uint16_t vsol,
         uint16_t vbat,
         struct wspr_message *message) {
     uint32_t ulat;
     uint32_t ulon;
     uint32_t tlm_bignum;
-    uint8_t tlm_alt, tlm_temp, tlm_vbat, tlm_vsol, tlm_grid5, tlm_grid6;
+    uint8_t tlm_alt, tlm_vbat, tlm_vsol, tlm_grid5, tlm_grid6;
 
     /* set balloon indicator */
     message->callsign[0] = WSPR_BALLOON_INDICATOR_A;
@@ -73,15 +69,13 @@ void tlm_encode_wspr_secondary(int32_t lat,
     if (tlm_grid6 > 23) tlm_grid6 = 23;
     
     /* encode telemetry */
-    tlm_alt = (alt - (alt / 1000) * 1000) / 10;
+    tlm_alt = tlm_encode_wspr_alt(alt);
     tlm_vbat = tlm_encode_wspr_vbat(vbat);
     tlm_vsol = tlm_encode_wspr_vsol(vsol);
-    tlm_temp = tlm_encode_wspr_temp(temp);
 
     tlm_bignum = tlm_grid5;
     tlm_bignum = tlm_bignum * 24 + tlm_grid6;
-    tlm_bignum = tlm_bignum * 10 + tlm_alt;
-    tlm_bignum = tlm_bignum * 12 + tlm_temp;
+    tlm_bignum = tlm_bignum * 140 + tlm_alt;
     tlm_bignum = tlm_bignum * 15 + tlm_vbat;
     tlm_bignum = tlm_bignum * 10 + tlm_vsol;
 
@@ -110,6 +104,13 @@ void tlm_encode_wspr_secondary(int32_t lat,
     } else {
         message->callsign[1] += 'A';
     }
+}
+
+uint8_t tlm_encode_wspr_alt(uint16_t alt) {
+    if (alt > 13999) {
+        alt = 13999;
+    }
+    return alt / 100;
 }
 
 uint8_t tlm_encode_wspr_vbat(uint16_t voltage) {
@@ -148,19 +149,20 @@ uint8_t tlm_encode_wspr_vsol(uint16_t voltage) {
 
 uint8_t tlm_encode_wspr_temp(int16_t temperature) {
     /* temperature is in nominal range -40°C .. +15 °C */
-    /* Encoding in 12 steps:
-     *   -inf .. -35 °C = 0,
-     *   -35  .. -30 °C = 1,
+    /* Encoding in 19 steps:
+     *   -inf .. -46 °C = 0,
+     *   -45  .. -41 °C = 1,
+     *   -40  .. -34 °C = 2
      *   ...
-     *   10   .. 15 °C = 11
+     *   35   .. 39 °C = 17
+     *   40   .. inf   = 18
      */
-    if (temperature < -40) {
+    if (temperature < -50) {
         return 0;
     }
-    if (temperature > 15) {
-        return 11;
+    if (temperature > 44) {
+        return 18;
     }
 
-    return (temperature + 40) / 5;
-
+    return (temperature + 50) / 5;
 }
