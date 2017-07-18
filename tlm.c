@@ -82,7 +82,7 @@ void tlm_encode_wspr_secondary(int32_t lat,
     /* encode the telemetry value into the callsign chars */
     message->power = tlm_wspr_power_table[tlm_bignum % 19];
     tlm_bignum /= 19;
-    message->callsign[5] = (tlm_bignum % 27);
+    message->callsign[5] = tlm_bignum % 27;
     tlm_bignum /= 27;
     message->callsign[4] = tlm_bignum % 26;
     tlm_bignum /= 26;
@@ -102,7 +102,7 @@ void tlm_encode_wspr_secondary(int32_t lat,
     if (message->callsign[1] < 10) {
         message->callsign[1] += '0';
     } else {
-        message->callsign[1] += 'A';
+        message->callsign[1] += 'A' - 10;
     }
 }
 
@@ -140,7 +140,7 @@ uint8_t tlm_encode_wspr_vsol(uint16_t voltage) {
      *   ..., 
      *   1.8 .. inf V = 9
      */
-    if (voltage > 2000) {
+    if (voltage > 1999) {
         return 9;
     }
 
