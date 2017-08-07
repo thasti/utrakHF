@@ -42,7 +42,7 @@ uint16_t adc_get_voltage(adc_voltage_channel channel) {
 
     /* post process readings */
     switch (channel) {
-    case CHANNEL_VSOL:
+    case CHANNEL_VBAT:
         voltage = voltage * 2;
         break;
     default:
