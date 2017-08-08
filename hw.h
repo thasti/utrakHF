@@ -8,8 +8,8 @@
 
 #define POUT_VEN        P1OUT
 #define PDIR_VEN        P1DIR
-#define BIT_VEN_GPS     BIT4
-#define BIT_VEN_RF      BIT5
+#define BIT_VEN_GPS     BIT5
+#define BIT_VEN_RF      BIT4
 
 #define POUT_I2C        P1OUT
 #define PDIR_I2C        P1DIR

@@ -104,6 +104,6 @@ void transmit(struct state *state) {
 int main(void) {
     struct state state = {charge, 0};
     hw_init();
-    
+        
     while(1) state.next(&state);
 }
