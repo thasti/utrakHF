@@ -32,7 +32,7 @@ void charge(struct state *state) {
     isr_flags &= ~ISR_FLAG_WAKE_CPU;
     vbat = adc_get_voltage(CHANNEL_VBAT);
     vsol = adc_get_voltage(CHANNEL_VSOL);
-    if (vbat > CHARGE_MIN_VSOL && vsol > CHARGE_MIN_VBAT) {
+    if (vbat > CHARGE_MIN_VBAT && vsol > CHARGE_MIN_VSOL) {
         /* battery charged, ready to proceed */
         state->next = get_gps_fix; 
         hw_gps_config(MODULE_ENABLE);
@@ -104,6 +104,6 @@ void transmit(struct state *state) {
 int main(void) {
     struct state state = {charge, 0};
     hw_init();
-        
+
     while(1) state.next(&state);
 }

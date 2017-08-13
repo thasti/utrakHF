@@ -7,7 +7,7 @@ extern volatile uint16_t isr_flags;
 
 void hw_init(void) {
     /* setup watchdog */
-	WDTCTL = WDTPW + WDTCNTCL + WDTIS0;
+	WDTCTL = WDTPW + WDTCNTCL + WDTSSEL0 + WDTIS0;
 
     /* setup DCO */
 	CSCTL0_H = 0xA5;
@@ -43,7 +43,7 @@ void hw_init(void) {
      *   * continuous mode
      */
 	TA0CCR0 = 0;
-	TA0CTL = TASSEL_1 + MC_2 + ID_3 + TAIE + TACLR;
+	TA0CTL = TASSEL_1 + MC_2 + ID_3 + TACLR;
 	TA0CCTL0 |= CCIE;
 
     /* setup WSPR baud rate timer
@@ -54,15 +54,15 @@ void hw_init(void) {
      *   * continuous mode
      */
     TB0CCR0 = 0;
-    TB0CTL = TBSSEL_2 + MC_2 + ID_3;
-    TB0CCTL0 = CCIE;
+    TB0CTL = TBSSEL_2 + MC_2 + ID_3 + TBCLR;
+    TB0CCTL0 |= CCIE;
 	
     /* enable interrupts globally */
     __bis_SR_register(GIE);
 }
 
 void hw_watchdog_feed(void) {
-	WDTCTL = WDTPW + WDTCNTCL + WDTIS0;
+	WDTCTL = WDTPW + WDTCNTCL + WDTSSEL0 + WDTIS0;
 }
 
 void hw_gps_config(hw_module_state state) {
@@ -214,7 +214,7 @@ __interrupt void UNMI_ISR(void)
 }
 
 #pragma vector = TIMER0_A0_VECTOR
-__interrupt void TIMER0_A0_ISR (void)
+__interrupt void Timer_A (void)
 {
 	TA0CCR0 += (20976 - 1);
 	isr_flags |= ISR_FLAG_HEARTBEAT;
