@@ -88,10 +88,10 @@ void hw_gps_config(hw_module_state state) {
         /* set to USCI alternate function */
         PDIR_UART &= ~BIT_UART_RXD;
         PSEL0_UART &= ~(BIT_UART_TXD + BIT_UART_RXD);
+        PSEL1_UART |= BIT_UART_TXD + BIT_UART_RXD;
 
         /* set 1PPS pin to input */
         PDIR_1PPS &= ~BIT_1PPS;
-        PSEL1_UART |= BIT_UART_TXD + BIT_UART_RXD;
 
         /* configure and enable UART
          *   * ACLK = FDCO/32 is used for baud rate generation
@@ -149,7 +149,7 @@ void hw_rf_config(hw_module_state state) {
 
         /* set oscillator input to XT1 */
         PSEL0_CLKIN |= BIT_CLKIN;
-        PSEL1_CLKIN |= BIT_CLKIN;
+        PSEL1_CLKIN &= ~BIT_CLKIN;
 
         /* configure I2C
          *   * clock source = ACLK = FDCO/32
@@ -158,11 +158,10 @@ void hw_rf_config(hw_module_state state) {
          *   * don't release reset
          */
         UCB0CTLW0 |= UCSWRST;
-        UCB0CTLW0 |= UCMODE_3  + UCMST + UCSYNC + UCSSEL_0;
-        UCB0CTLW0 &= ~UCSSEL_1;
+        UCB0CTLW0 &= ~(UCSSEL_3);
+        UCB0CTLW0 |= UCMODE_3 + UCMST + UCSYNC + UCSSEL_1;
         UCB0CTLW1 |= UCASTP_2;
         UCB0BRW    = 0x0004;
-        UCB0IE    |= UCRXIE+UCNACKIE+UCBCNTIE; 	
         
         /* enable RF voltage */
         POUT_VEN &= ~BIT_VEN_RF;

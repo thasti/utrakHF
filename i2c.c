@@ -6,22 +6,19 @@ volatile uint8_t *tx_data;
 void i2c_write(uint8_t slave_addr, uint8_t *data, uint8_t len) {
     tx_data = data;
     
-    /* wait for any remaining transfers to finished */
-    while (UCB0STATW & UCBBUSY);
-    
     /* configure I2C peripheral for transfer */
     UCB0CTLW0 |= UCSWRST;
-    UCB0TBCNT |= len;
+    UCB0TBCNT = len;
     UCB0I2CSA = slave_addr;
-    UCB0IE    |= UCTXIE0+UCSTPIE+UCNACKIE+UCSTPIE; 	
-    UCB0CTL1  &= ~UCSWRST;
+    UCB0CTLW0  &= ~UCSWRST;
+    UCB0IE    |= UCTXIE0 + UCNACKIE + UCSTPIE;
 
     /* transmit start condition and sleep CPU while transfer occurs */
-    UCB0CTL1 |= UCTR + UCTXSTT;
-    __bis_SR_register(CPUOFF+GIE);
+    UCB0CTLW0 |= UCTR + UCTXSTT;
+    __bis_SR_register(CPUOFF);
 
     /* disable interrupts again and reset I2C peripheral */
-    UCB0IE    &= ~(UCTXIE0+UCSTPIE+UCNACKIE+UCSTPIE); 	
+    UCB0IE    &= ~(UCTXIE0 + UCNACKIE + UCSTPIE);
     UCB0CTLW0 |= UCSWRST;
 }
 

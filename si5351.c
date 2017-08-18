@@ -1,13 +1,13 @@
 #include <inttypes.h>
+#include "hw.h"
 #include "si5351.h"
 #include "i2c.h"
 
 /* initialization register map */
 const uint8_t si5351_reg_init[SI5351_INIT_REGISTERS][2] = {
     {  0, 0x00}, {  1, 0x00}, {  2, 0x08}, {  3, 0x00},
-    {  4, 0x00}, {  5, 0x00}, {  6, 0x00}, {  7, 0x00},
-    {  8, 0x00}, {  9, 0x00}, { 10, 0x00}, { 11, 0x00},
-    { 12, 0x00}, { 13, 0x00}, { 14, 0x00}, { 15, 0x0C},
+    {  9, 0x00}, 
+    { 15, 0x0C},
     { 16, 0x87}, { 17, 0x87}, { 18, 0x6F}, { 19, 0x5F},
     { 20, 0x87}, { 21, 0x87}, { 22, 0x87}, { 23, 0x87},
     { 24, 0x00}, { 25, 0x00}, { 26, 0x7C}, { 27, 0xCC},
@@ -46,47 +46,34 @@ const uint8_t si5351_reg_init[SI5351_INIT_REGISTERS][2] = {
     {156, 0x00}, {157, 0x00}, {158, 0x00}, {159, 0x00},
     {160, 0x00}, {161, 0x00}, {162, 0x00}, {163, 0x00},
     {164, 0x00}, {165, 0x00}, {166, 0x00}, {167, 0x00},
-    {168, 0x00}, {169, 0x00}, {170, 0x00}, {171, 0x00},
-    {172, 0x00}, {173, 0x00}, {174, 0x00}, {175, 0x00},
-    {176, 0x00}, {177, 0x00}, {178, 0x00}, {179, 0x00},
-    {180, 0x00}, {181, 0x30}, {182, 0x00}, {183, 0xD2},
-    {184, 0x60}, {185, 0x60}, {186, 0x00}, {187, 0xC0},
-    {188, 0x00}, {189, 0x00}, {190, 0x00}, {191, 0x00},
-    {192, 0x00}, {193, 0x00}, {194, 0x00}, {195, 0x00},
-    {196, 0x00}, {197, 0x00}, {198, 0x00}, {199, 0x00},
-    {200, 0x00}, {201, 0x00}, {202, 0x00}, {203, 0x00},
-    {204, 0x00}, {205, 0x00}, {206, 0x00}, {207, 0x00},
-    {208, 0x00}, {209, 0x00}, {210, 0x00}, {211, 0x00},
-    {212, 0x00}, {213, 0x00}, {214, 0x00}, {215, 0x00},
-    {216, 0x00}, {217, 0x00}, {218, 0x00}, {219, 0x00},
-    {220, 0x00}, {221, 0x0D}, {222, 0x00}, {223, 0x00},
-    {224, 0x00}, {225, 0x00}, {226, 0x00}, {227, 0x00},
-    {228, 0x00}, {229, 0x00}, {230, 0x00}, {231, 0x00},
-    {232, 0x00}
+    {168, 0x00}, {169, 0x00}, {170, 0x00}, 
+    {177, 0x00}, 
+    {183, 0xD2},
+    {187, 0xC0},
 };
 
-/* channel 0 (wspr symbol 0 register map */
+/* channel 0 (wspr symbol 0) register map */
 const uint8_t si5351_reg_ch0[SI5351_UPDATE_REGISTERS][2] = {
     {26, 0x7C}, {27, 0xCC}, {31, 0xC8}, {32, 0x0D},
     {33, 0x64}, {34, 0x3E}, {35, 0x66}, {39, 0x61},
     {40, 0x24}, {41, 0x50}
 };
 
-/* channel 1 (wspr symbol 0 register map */
+/* channel 1 (wspr symbol 1) register map */
 const uint8_t si5351_reg_ch1[SI5351_UPDATE_REGISTERS][2] = {
     {26, 0x7C}, {27, 0xCC}, {31, 0xC8}, {32, 0x0F},
     {33, 0x64}, {34, 0x9F}, {35, 0xD7}, {39, 0x00},
     {40, 0x1D}, {41, 0x48}
 };
 
-/* channel 2 (wspr symbol 0 register map */
+/* channel 2 (wspr symbol 2) register map */
 const uint8_t si5351_reg_ch2[SI5351_UPDATE_REGISTERS][2] = {
     {26, 0x7F}, {27, 0x5C}, {31, 0x21}, {32, 0x9D},
     {33, 0x14}, {34, 0x7F}, {35, 0x5C}, {39, 0x20},
     {40, 0x75}, {41, 0xA0}
 };
 
-/* channel 3 (wspr symbol 0 register map */
+/* channel 3 (wspr symbol 3) register map */
 const uint8_t si5351_reg_ch3[SI5351_UPDATE_REGISTERS][2] = {
     {26, 0x7C}, {27, 0xCC}, {31, 0xC8}, {32, 0x13},
     {33, 0x64}, {34, 0x7C}, {35, 0x88}, {39, 0xC2},
@@ -131,4 +118,8 @@ void si5351_set_channel(uint8_t channel) {
         reg_write[1] = si5351_reg_update[i][1];
         i2c_write(SI5351_I2C_ADDR, reg_write, 2);
     }
+}
+
+void si5351_startup_delay(void) {
+    hw_delay_ms(10);
 }

@@ -72,6 +72,7 @@ void get_gps_fix(struct state *state) {
             state->next = transmit;
             hw_gps_config(MODULE_DISABLE);
             hw_rf_config(MODULE_ENABLE);
+            si5351_startup_delay();
             si5351_init();
             isr_flags &= ~ISR_FLAG_WSPR_BAUD;
             hw_reset_wspr_baud_timer();
