@@ -162,7 +162,7 @@ uint8_t wspr_ascii_to_num(uint8_t c) {
  * in the WSPR spec. Valid ASCII-chars: 'A'..'Z', ' '
  */
 uint8_t wspr_ascii_to_alpha(uint8_t c) {
-    if (c == '0') {
+    if (c == ' ') {
         return 26;
     }
     if (c >= 'A' && c <= 'Z') {
