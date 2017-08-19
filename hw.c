@@ -7,14 +7,14 @@ extern volatile uint16_t isr_flags;
 
 void hw_init(void) {
     /* setup watchdog */
-	WDTCTL = WDTPW + WDTCNTCL + WDTSSEL0 + WDTIS0;
+    WDTCTL = WDTPW + WDTHOLD;
 
     /* setup DCO */
-	CSCTL0_H = 0xA5;
-	CSCTL1 = DCOFSEL_0;
-	CSCTL2 = SELA__DCOCLK + SELS__XT1CLK + SELM__DCOCLK;
-	CSCTL3 = DIVA__32 + DIVS__32 + DIVM__4;
-	CSCTL4 = XT1OFF + XT2OFF;
+    CSCTL0_H = 0xA5;
+    CSCTL1 = DCOFSEL_0;
+    CSCTL2 = SELA__DCOCLK + SELS__XT1CLK + SELM__DCOCLK;
+    CSCTL3 = DIVA__16 + DIVS__32 + DIVM__4;
+    CSCTL4 = XT1OFF + XT2OFF;
 
     /* setup voltage enable pins */
     POUT_VEN |= BIT_VEN_GPS + BIT_VEN_RF;
@@ -36,15 +36,16 @@ void hw_init(void) {
     hw_rf_config(MODULE_DISABLE);
 
     /* setup heartbeat timer
-     *   * clock source: ACLK = FDCO/32
-     *   * prescaler: 8
-     *   * clock speed: 5.37 MHz / 32 / 8 = ~21 kHz
+     *   * clock source: ACLK = FDCO/16
+     *   * prescaler: normal 8, extended 2
+     *   * clock speed: 5.37 MHz / 16 / 8 / 2 = ~21 kHz
      *   * heartbeat at 1 s intervals
      *   * continuous mode
      */
 	TA0CCR0 = 0;
-	TA0CTL = TASSEL_1 + MC_2 + ID_3 + TACLR;
-	TA0CCTL0 |= CCIE;
+    TA0CTL = TASSEL_1 + MC_2 + ID_3 + TACLR;
+    TA0EX0 = TAIDEX_1;
+    TA0CCTL0 |= CCIE;
 
     /* setup WSPR baud rate timer
      *   * clock source. SMCLK = FXT1/32
@@ -62,7 +63,7 @@ void hw_init(void) {
 }
 
 void hw_watchdog_feed(void) {
-	WDTCTL = WDTPW + WDTCNTCL + WDTSSEL0 + WDTIS0;
+	WDTCTL = WDTPW + WDTCNTCL + WDTSSEL_1 + WDTIS_2;
 }
 
 void hw_gps_config(hw_module_state state) {
@@ -94,18 +95,18 @@ void hw_gps_config(hw_module_state state) {
         PDIR_1PPS &= ~BIT_1PPS;
 
         /* configure and enable UART
-         *   * ACLK = FDCO/32 is used for baud rate generation
+         *   * ACLK = FDCO/16 is used for baud rate generation
          *   * FDCO = 5.37 MHz
-         *   * N = 17.48, therefore OS16 enabled
-         *   * BR = INT(N) / 16 = 1
-         *   * BRF = INT(((N/16) - INT(N/16)) * 16) = 1
-         *   * BRS = table(N - INT(N)) = 0.48 -> 0x55
+         *   * N = 34.96, therefore OS16 enabled
+         *   * BR = INT(N / 16) = 2
+         *   * BRF = INT(((N/16) - INT(N/16)) * 16) = 2
+         *   * BRS = table(N - INT(N)) = 0.96 -> 0xFE
          */
         UCA0CTL1 = UCSWRST;
         UCA0CTL1 |= UCSSEL_1;
-        UCA0BR0 = 1;
+        UCA0BR0 = 2;
         UCA0BR1 = 0;
-        UCA0MCTLW = (0x55<<8) + (1<<4) + UCOS16;
+        UCA0MCTLW = (0xFE<<8) + (2<<4) + UCOS16;
         UCA0CTL1 &= ~UCSWRST;
         
         /* enable GPS voltage */
@@ -152,9 +153,9 @@ void hw_rf_config(hw_module_state state) {
         PSEL1_CLKIN &= ~BIT_CLKIN;
 
         /* configure I2C
-         *   * clock source = ACLK = FDCO/32
+         *   * clock source = ACLK = FDCO/16
          *   * FDCO = 5.37 MHz
-         *   * max baud rate = ACLK/4 = ~42 kHz
+         *   * max baud rate = ACLK/4 = ~84 kHz
          *   * don't release reset
          */
         UCB0CTLW0 |= UCSWRST;
@@ -188,7 +189,7 @@ void hw_reset_wspr_baud_timer(void) {
     TB0R = 65535;
 }
 
-/* CPU is running at MCLK = FDCO/8
+/* CPU is running at MCLK = FDCO/4
  * MCLK = 5.37 MHz / 4 -> 0,74 us period
  * approximately waiting as many cycles as microseconds should be good enough
 */
