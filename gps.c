@@ -117,11 +117,6 @@ void gps_get_fix(struct gps_fix *fix) {
 	char pvt[] = {0xB5, 0x62, 0x01, 0x07, 0x00, 0x00, 0x08, 0x19};
 	int32_t alt_tmp;
 		
-	/* wake up from sleep */
-	uart_putc(0xFF);
-    uart_flush_tx();
-	gps_startup_delay();
-
 	/* request position */
 	uart_puts(pvt, sizeof(pvt));
 	gps_receive_payload(0x01, 0x07, response);
