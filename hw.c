@@ -13,7 +13,7 @@ void hw_init(void) {
     CSCTL0_H = 0xA5;
     CSCTL1 = DCOFSEL_0;
     CSCTL2 = SELA__DCOCLK + SELS__XT1CLK + SELM__DCOCLK;
-    CSCTL3 = DIVA__16 + DIVS__32 + DIVM__4;
+    CSCTL3 = DIVA__2 + DIVS__32 + DIVM__4;
     CSCTL4 = XT1OFF + XT2OFF;
 
     /* setup voltage enable pins */
@@ -36,15 +36,15 @@ void hw_init(void) {
     hw_rf_config(MODULE_DISABLE);
 
     /* setup heartbeat timer
-     *   * clock source: ACLK = FDCO/16
-     *   * prescaler: normal 8, extended 2
-     *   * clock speed: 5.37 MHz / 16 / 8 / 2 = ~21 kHz
+     *   * clock source: ACLK = FDCO/2
+     *   * prescaler: normal 8, extended 8
+     *   * clock speed: 5.37 MHz / 2 / 8 / 8 = ~42 kHz
      *   * heartbeat at 1 s intervals
      *   * continuous mode
      */
 	TA0CCR0 = 0;
     TA0CTL = TASSEL_1 + MC_2 + ID_3 + TACLR;
-    TA0EX0 = TAIDEX_1;
+    TA0EX0 = TAIDEX_7;
     TA0CCTL0 |= CCIE;
 
     /* setup WSPR baud rate timer
@@ -63,7 +63,7 @@ void hw_init(void) {
 }
 
 void hw_watchdog_feed(void) {
-	WDTCTL = WDTPW + WDTCNTCL + WDTSSEL_1 + WDTIS_2;
+	WDTCTL = WDTPW + WDTCNTCL + WDTSSEL_1 + WDTIS_1;
 }
 
 void hw_gps_config(hw_module_state state) {
@@ -95,18 +95,18 @@ void hw_gps_config(hw_module_state state) {
         PDIR_1PPS &= ~BIT_1PPS;
 
         /* configure and enable UART
-         *   * ACLK = FDCO/16 is used for baud rate generation
+         *   * ACLK = FDCO/2 is used for baud rate generation
          *   * FDCO = 5.37 MHz
-         *   * N = 34.96, therefore OS16 enabled
-         *   * BR = INT(N / 16) = 2
-         *   * BRF = INT(((N/16) - INT(N/16)) * 16) = 2
-         *   * BRS = table(N - INT(N)) = 0.96 -> 0xFE
+         *   * N = 279,688, therefore OS16 enabled
+         *   * BR = INT(N / 16) = 17
+         *   * BRF = INT(((N/16) - INT(N/16)) * 16) = 7
+         *   * BRS = table(N - INT(N)) = 0,688 -> 0xD6
          */
         UCA0CTL1 = UCSWRST;
         UCA0CTL1 |= UCSSEL_1;
-        UCA0BR0 = 2;
+        UCA0BR0 = 17;
         UCA0BR1 = 0;
-        UCA0MCTLW = (0xFE<<8) + (2<<4) + UCOS16;
+        UCA0MCTLW = (0xD6<<8) + (7<<4) + UCOS16;
         UCA0CTL1 &= ~UCSWRST;
         
         /* enable GPS voltage */
@@ -216,7 +216,7 @@ __interrupt void UNMI_ISR(void)
 #pragma vector = TIMER0_A0_VECTOR
 __interrupt void Timer_A (void)
 {
-	TA0CCR0 += (20976 - 1);
+	TA0CCR0 += (41953 - 1);
 	isr_flags |= ISR_FLAG_HEARTBEAT;
     if (isr_flags & ISR_FLAG_WAKE_CPU) {
         __bic_SR_register_on_exit(LPM3_bits);
