@@ -6,7 +6,7 @@
 #define ISR_FLAG_WAKE_CPU       0x0100
 
 #define CHARGE_MIN_VSOL         200
-#define CHARGE_MIN_VBAT         4500
+#define CHARGE_MIN_VBAT         4300
 #define FIX_MIN_VSOL            200
 #define FIX_MIN_VBAT            4000
 #define TX_MIN_VSOL             200
