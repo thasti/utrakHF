@@ -11,14 +11,14 @@ uint16_t adc_get_voltage(adc_voltage_channel channel) {
 	
     /* configure ADC
      *   * conversion clock ACLK = FDCO/32
-     *   * FDCO/32 = 5.37 MHz/32 -> 6 us period
+     *   * FDCO/32 = 5.37 MHz/2 -> 370 ns period
      *   * worst case source impedance = 1 MOhm
      *   * input capacitance ~10 pF
      *   * ~80 us required sampling time
-     *   * using 16 cycles for S&H is more than enough
+     *   * using 256 cycles for S&H is more than enough
      *   * max sample rate is ~13 kHz, so low speed mode can be used
      */
-    ADC10CTL0 = ADC10SHT_2 + ADC10ON;
+    ADC10CTL0 = ADC10SHT_8 + ADC10ON;
 	ADC10CTL1 = ADC10SHP + ADC10SSEL0;
 	ADC10CTL2 = ADC10RES + ADC10SR;
     switch (channel) {
@@ -62,12 +62,13 @@ int16_t adc_get_temperature(void) {
 
 	/* configure ADC
      *   * 30 microsecond conversion time minimum
-     *   * conversion clock ACLK = FDCO/32
-     *   * FDCO/32 = 5.37 MHz/32 -> 6 us period
-     *   * using 8 cycles for S&H is more than enough
+     *   * conversion clock ACLK = FDCO/2
+     *   * FDCO/32 = 5.37 MHz/2 -> 370 ns period
+     *   * ~30 us required sampling time
+     *   * using 128 cycles for S&H is more than enough
      *   * max sample rate is ~13 kHz, so low speed mode can be used
      */
-	ADC10CTL0 = ADC10SHT_1 + ADC10ON;
+	ADC10CTL0 = ADC10SHT_6 + ADC10ON;
 	ADC10CTL1 = ADC10SHP + ADC10SSEL0;	
 	ADC10CTL2 = ADC10RES + ADC10SR;
 	ADC10MCTL0 = ADC10SREF_1 + ADC10INCH_10;
