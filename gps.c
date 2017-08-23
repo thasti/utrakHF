@@ -173,7 +173,10 @@ uint8_t gps_disable_nmea_output(void) {
     };
 
     uart_puts(nonmea, sizeof(nonmea));
-    return gps_receive_ack(0x06, 0x00);
+    //FIXME: sometimes, the ublox ACK is scrambled directly after power up...
+    // however, it accepts the message and no harm is done.
+    //return gps_receive_ack(0x06, 0x00);
+    return 0;
 }
 
 /*
@@ -235,7 +238,10 @@ uint8_t gps_set_airborne_model(void) {
     };
 
     uart_puts(model6, sizeof(model6));
-    return gps_receive_ack(0x06, 0x24);
+    //FIXME: sometimes, the ublox ACK is scrambled directly after power up...
+    // however, it accepts the message and no harm is done.
+    //return gps_receive_ack(0x06, 0x24);
+    return 0;
 }
 
 /*
@@ -316,6 +322,6 @@ uint8_t gps_save_settings(void) {
  */
 void gps_startup_delay(void) {
     /* wait for the GPS to startup */
-    hw_delay_ms(1500);
+    hw_delay_ms(1000);
 }
 
