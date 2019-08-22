@@ -3,12 +3,12 @@
 #include "wspr.h"
 
 /* six-digit callsign string */
-#define WSPR_PRIMARY_CALLSIGN       "DK3SB "
+#define WSPR_PRIMARY_CALLSIGN       "DL3YC "
 /* two one-digit balloon indicators for secondary packets */
 /* one of '0' or 'Q' */
 #define WSPR_BALLOON_INDICATOR_A    '1'
 /* one of '0' .. '9' */
-#define WSPR_BALLOON_INDICATOR_B    '1'
+#define WSPR_BALLOON_INDICATOR_B    '2'
 
 /*
  * tlm_encode_wspr_primary()
