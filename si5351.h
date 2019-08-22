@@ -5,6 +5,8 @@
 #define SI5351_UPDATE_REGISTERS 5
 #define SI5351_I2C_ADDR         0x60
 
+#define WSPR_FREQ_HIGH
+
 /*
  * si5351_init()
  *

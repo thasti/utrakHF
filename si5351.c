@@ -52,6 +52,7 @@ const uint8_t si5351_reg_init[SI5351_INIT_REGISTERS][2] = {
     {187, 0xD0},
 };
 
+#ifdef WSPR_FREQ_LOW
 /* channel 0 (wspr symbol 0) register map */
 const uint8_t si5351_reg_ch0[SI5351_UPDATE_REGISTERS][2] = {
     {26, 0x3E}, {27, 0x66}, {31, 0x61}, {32, 0x24}, {33, 0x50}
@@ -71,6 +72,30 @@ const uint8_t si5351_reg_ch2[SI5351_UPDATE_REGISTERS][2] = {
 const uint8_t si5351_reg_ch3[SI5351_UPDATE_REGISTERS][2] = {
     {26, 0x7C}, {27, 0xCC}, {31, 0xC2}, {32, 0x4E}, {33, 0x20}
 };
+#endif
+
+#ifdef WSPR_FREQ_HIGH
+/* channel 0 (wspr symbol 0) register map */
+const uint8_t si5351_reg_ch0[SI5351_UPDATE_REGISTERS][2] = {
+    {26, 0x7f}, {27, 0x5c}, {31, 0x20}, {32, 0x74}, {33, 0xa0}
+};
+
+/* channel 1 (wspr symbol 1) register map */
+const uint8_t si5351_reg_ch1[SI5351_UPDATE_REGISTERS][2] = {
+    {26, 0x98}, {27, 0x00}, {31, 0x20}, {32, 0x79}, {33, 0x80}
+};
+
+/* channel 2 (wspr symbol 2) register map */
+const uint8_t si5351_reg_ch2[SI5351_UPDATE_REGISTERS][2] = {
+    {26, 0x33}, {27, 0x65}, {31, 0x91}, {32, 0xb0}, {33, 0x58}
+};
+
+/* channel 3 (wspr symbol 3) register map */
+const uint8_t si5351_reg_ch3[SI5351_UPDATE_REGISTERS][2] = {
+    {26, 0x7d}, {27, 0xbe}, {31, 0x30}, {32, 0xa4}, {33, 0x90}
+};
+#endif
+
 
 void si5351_init(void) {
     int i;
