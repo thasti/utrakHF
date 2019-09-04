@@ -1,9 +1,3 @@
 # uTrakHF PCB Errata
   * MOSFET pinout is wrong - impact: gates of GPS/Si5351 enable are swapped
     * currently fixed in software (pin swap)
-  * PGND (pin 18) of SPV1050 is not connected to GND
-    * solder bridge between pin 19 and 20 can be extended to pin 18
-  * enabling GPS and/or Si5351 takes excessive inrush current
-    * needs series resistors, 10 R and 5 R has been proven to be working
-  * MPPT can not supply sufficient charging current using two solar cells in series.
-    * fixed by add-on-board with SPV1040 + 3.3V regulator
