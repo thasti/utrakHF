@@ -60,7 +60,7 @@ void get_gps_fix(struct state *state) {
     }
     if (fix.type == 3) {
         /* valid fix exists */
-        if ((fix.min % 2) == 0 && (fix.sec == 1 || fix.sec == 2)) {
+        if ((fix.min % 2) == 0 && (fix.sec == 0 || fix.sec == 1)) {
             /* start WSPR transmission */
             if (fix.min % 10 == 0) {
                 tlm_encode_wspr_primary(fix.lat, fix.lon, temp, &wspr_msg);
