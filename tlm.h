@@ -3,6 +3,7 @@
 #include "wspr.h"
 
 /* six-digit callsign string */
+/* align numeral in callsign here:     v */
 #define WSPR_PRIMARY_CALLSIGN       "DL3YC "
 /* two one-digit balloon indicators for secondary packets */
 /* one of '0' or 'Q' */
